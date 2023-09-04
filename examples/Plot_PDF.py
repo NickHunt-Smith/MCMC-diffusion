@@ -70,42 +70,12 @@ sigma2=sigma2T+dsigma2*np.random.randn(len(sigma2T))
 pmin=np.array([-1,0,-1,0])
 pmax=np.array([+1,5,+1,5])
 
-# Data Resampling for approximate true distribution
-replicas_dr=[]
-for irep in range(num_reps):
-    if irep%10==0: lprint('%d'%(irep))
-    ksigma1=sigma1+(dsigma1)*np.random.randn(len(sigma1))
-    ksigma2=sigma2+(dsigma2)*np.random.randn(len(sigma2))
-
-    def get_residuals(p):
-        res1=(ksigma1-get_sigma1(X1,p))/dsigma1
-        res2=(ksigma2-get_sigma2(X2,p))/dsigma2
-        res = np.append(res1,res2)
-        return res
-
-    fit=least_squares(get_residuals,pmin+(pmax-pmin)*np.random.uniform(0,1,4),bounds=np.array([pmin,pmax]))
-    replicas_dr.append(fit.x)
-
-    data_file_name = outdir + '/replicas.dat'
-    isExist = os.path.exists(data_file_name)
-    if isExist:
-        os.remove(data_file_name)
-    F = open(data_file_name,'a')
-    data_mean_string = ''
-    for i in range(len(replicas_dr)):
-        for j in range(len(replicas_dr[i])):
-            data_mean_string = data_mean_string + str(replicas_dr[i][j]) + ' '
-        data_mean_string = data_mean_string + '\n'
-    F.write(data_mean_string)
-    F.close()
-
 dim = 4
-samples_total = 10100
-samples_burn_in = 100
+samples_total = 101000
+samples_burn_in = 1000
 
 algo1_samples = np.loadtxt(outdir + '/samples.dat')
 comparison_samples = np.loadtxt(outdir + '/comparison_samples.dat')
-replicas_plot = np.loadtxt(outdir + '/replicas.dat')
 
 def gen_inference(X1,X2,X,replicas):
     sigma1,sigma2=[],[]
@@ -138,7 +108,6 @@ plt.subplots_adjust(wspace = 0.25)
 plt.subplots_adjust(hspace = 0.25)
 
 X=np.linspace(0.1,0.9,100)
-data_dr=gen_inference(X,X,X,replicas_plot)
 data_diffusion = gen_inference(X,X,X,algo1_samples[samples_burn_in:samples_total])
 data_MH=gen_inference(X,X,X,comparison_samples[samples_burn_in:samples_total])
 
@@ -152,14 +121,10 @@ ax[0][0].errorbar(X1,sigma1,dsigma1,ecolor = 'k',color = 'k',fmt='.',markersize=
 ax[0][0].errorbar(X2,sigma2,dsigma2,ecolor = 'k',color = 'k',fmt='.',markersize=10,mfc='white',label=r'\boldmath{$ \sigma^{\rm dat}_2$}')
 ax[0][0].plot(X,get_sigma1(X,true_params),'b',lw=2,label=r'\boldmath{$\sigma_1$}')
 ax[0][0].plot(X,get_sigma2(X,true_params),'forestgreen',lw=2,label = r'\boldmath{$\sigma_2$}')
-ax[0][0].fill_between(X,data_dr['sigma1']-data_dr['dsigma1'],data_dr['sigma1']+data_dr['dsigma1']
-                ,facecolor='none',hatch = '/',edgecolor=edgecolors[0])
 ax[0][0].fill_between(X,data_diffusion['sigma1']-data_diffusion['dsigma1'],data_diffusion['sigma1']+data_diffusion['dsigma1']
                 ,facecolor='none',hatch = '..',edgecolor=edgecolors[1])
 ax[0][0].fill_between(X,data_MH['sigma1']-data_MH['dsigma1'],data_MH['sigma1']+data_MH['dsigma1']
                 ,facecolor='none',hatch = '--',edgecolor=edgecolors[2])
-ax[0][0].fill_between(X,data_dr['sigma2']-data_dr['dsigma2'],data_dr['sigma2']+data_dr['dsigma2']
-                ,facecolor='none',hatch = '/',edgecolor=edgecolors[0])
 ax[0][0].fill_between(X,data_diffusion['sigma2']-data_diffusion['dsigma2'],data_diffusion['sigma2']+data_diffusion['dsigma2']
                 ,facecolor='none',hatch = '..',edgecolor=edgecolors[1])
 ax[0][0].fill_between(X,data_MH['sigma2']-data_MH['dsigma2'],data_MH['sigma2']+data_MH['dsigma2']
@@ -173,9 +138,6 @@ ax[0][0].tick_params(axis='both', which='both', labelsize=20,direction='in', len
 ax[0][0].legend(fontsize = 18, frameon=0,handlelength=1.5,handletextpad=0.6)
 
 ax[1][0].plot(X,get_sigma1(X,true_params)/norm1,'b',lw = 5)
-ax[1][0].fill_between(X,(data_dr['sigma1']-data_dr['dsigma1'])/norm1
-                 ,(data_dr['sigma1']+data_dr['dsigma1'])/norm1
-                 ,facecolor='none',hatch = '/',edgecolor=edgecolors[0])
 ax[1][0].fill_between(X,(data_diffusion['sigma1']-data_diffusion['dsigma1'])/norm1
                  ,(data_diffusion['sigma1']+data_diffusion['dsigma1'])/norm1
                  ,facecolor='none',hatch = '..',edgecolor=edgecolors[1])
@@ -189,9 +151,6 @@ ax[1][0].set_ylabel(r'\boldmath{${\rm ratio~to}~\sigma_1$}',size=30,labelpad=10)
 ax[1][0].tick_params(axis='both', which='both', labelsize=20,direction='in', length=6)
 
 ax[2][0].plot(X,get_sigma2(X,true_params)/norm2,'forestgreen',lw = 5)
-ax[2][0].fill_between(X,(data_dr['sigma2']-data_dr['dsigma2'])/norm2
-                 ,(data_dr['sigma2']+data_dr['dsigma2'])/norm2
-                 ,facecolor='none',hatch = '/',edgecolor=edgecolors[0])
 ax[2][0].fill_between(X,(data_diffusion['sigma2']-data_diffusion['dsigma2'])/norm2
                  ,(data_diffusion['sigma2']+data_diffusion['dsigma2'])/norm2
                  ,facecolor='none',hatch = '..',edgecolor=edgecolors[1])
@@ -206,14 +165,10 @@ ax[2][0].tick_params(axis='both', which='both',labelsize=20,direction='in', leng
 
 ax[0][1].plot(X,get_u(X,0.5,2.5),label=r'\boldmath{$q_1$}',lw=2,color = 'b')
 ax[0][1].plot(X,get_d(X,0.1,3.0),label=r'\boldmath{$q_2$}',lw=2,color = 'forestgreen')
-ax[0][1].fill_between(X,data_dr['u']-data_dr['du'],data_dr['u']+data_dr['du']
-                ,facecolor='none',hatch = '/',edgecolor=edgecolors[0],label=r'\rm \bf Many Samples')
 ax[0][1].fill_between(X,data_diffusion['u']-data_diffusion['du'],data_diffusion['u']+data_diffusion['du']
                 ,facecolor='none',hatch = '..',edgecolor=edgecolors[1],label=r'\rm \bf Diffusion + MH')
 ax[0][1].fill_between(X,data_MH['u']-data_MH['du'],data_MH['u']+data_MH['du']
                 ,facecolor='none',hatch = '--',edgecolor=edgecolors[2],label=r'\rm \bf Pure MH')
-ax[0][1].fill_between(X,data_dr['d']-data_dr['dd'],data_dr['d']+data_dr['dd']
-                ,facecolor='none',hatch = '/',edgecolor=edgecolors[0])
 ax[0][1].fill_between(X,data_diffusion['d']-data_diffusion['dd'],data_diffusion['d']+data_diffusion['dd']
                 ,facecolor='none',hatch = '..',edgecolor=edgecolors[1])
 ax[0][1].fill_between(X,data_MH['d']-data_MH['dd'],data_MH['d']+data_MH['dd']
@@ -226,9 +181,6 @@ ax[0][1].tick_params(axis='both', which='both', labelsize=20,direction='in', len
 ax[0][1].legend(fontsize = 15, frameon=0,handlelength=1.5,handletextpad=0.6)
 
 ax[1][1].plot(X,get_u(X,true_params[0],true_params[1])/normu,'b',lw = 5)
-ax[1][1].fill_between(X,(data_dr['u']-data_dr['du'])/normu
-                 ,(data_dr['u']+data_dr['du'])/normu
-                 ,facecolor='none',hatch = '/',edgecolor=edgecolors[0])
 ax[1][1].fill_between(X,(data_diffusion['u']-data_diffusion['du'])/normu
                  ,(data_diffusion['u']+data_diffusion['du'])/normu
                  ,facecolor='none',hatch = '..',edgecolor=edgecolors[1])
@@ -242,11 +194,8 @@ ax[1][1].set_ylabel(r'\boldmath{${\rm ratio~to}~q_1$}',size=30,labelpad=10)
 ax[1][1].tick_params(axis='both', which='both', labelsize=20,direction='in', length=6)
 
 ax[2][1].plot(X,get_d(X,true_params[2],true_params[3])/normd,'forestgreen',lw = 5)
-ax[2][1].fill_between(X,((data_dr['d']-data_dr['dd'])/normd)
-                 ,((data_dr['d']+data_dr['dd'])/normd)
-                 ,facecolor='none',hatch = '/',edgecolor=edgecolors[0])
-ax[2][1].fill_between(X,((data_diffusion['d']-data_diffusion['dd'])/normd)
-                 ,((data_diffusion['d']+data_diffusion['dd'])/normd)
+ax[2][1].fill_between(X,(data_diffusion['d']-data_diffusion['dd'])/normd
+                 ,(data_diffusion['d']+data_diffusion['dd'])/normd
                  ,facecolor='none',hatch = '..',edgecolor=edgecolors[1])
 ax[2][1].fill_between(X,((data_MH['d']-data_MH['dd'])/normd)
                  ,((data_MH['d']+data_MH['dd'])/normd)

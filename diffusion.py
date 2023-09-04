@@ -6,7 +6,7 @@ from random import randrange
 
 class DiffusionModel:
     def __init__(self,dim,nsteps,noise_width,initial_sample_size,
-    desired_sample_size,training_samples,var_guess):
+    desired_sample_size,training_samples,var_guess,beta_1,beta_2):
         self.dim = dim
         self.nsteps = nsteps
         self.initial_sample_size = initial_sample_size
@@ -14,6 +14,8 @@ class DiffusionModel:
         self.training_samples = training_samples
         self.var_guess = var_guess
         self.noise_width = noise_width
+        self.beta_1 = beta_1
+        self.beta_2 = beta_2
 
     def forward_diffusion(self,x0,t,dim_iter,alpha_bar):
         eps = np.random.normal(loc = self.noise_means[dim_iter],
@@ -35,7 +37,7 @@ class DiffusionModel:
             self.noise_means.append(np.mean(self.training_samples[:,i]))
 
         # Perform forward diffusion process
-        beta = np.linspace(0.1, 0.3, self.nsteps)
+        beta = np.linspace(self.beta_1, self.beta_2, self.nsteps)
         alpha = 1-beta
         alpha_bar = np.cumprod(alpha)
         X_diffusion = []

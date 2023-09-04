@@ -46,7 +46,7 @@ np.savetxt(outdir + '/' + 'comparison_samples.dat',comparison_samples)
 algo1 = Algo_1.MH_Diffusion(log_likelihood,dim,low_bound,high_bound,
 initial_samples,retrains,samples_per_retrain,outdir = outdir,
 noise_width = noise_width)
-samples,diffusion_samples,MH_samples = algo1.run()
+samples,diffusion_samples,MH_samples,diffusion_rate = algo1.run()
 
 isExist = os.path.exists(outdir + '/' + 'samples.dat')
 if isExist:
@@ -62,3 +62,8 @@ isExist = os.path.exists(outdir + '/' + 'MH_samples.dat')
 if isExist:
     os.remove(outdir + '/' + 'MH_samples.dat')
 np.savetxt(outdir + '/' + 'MH_samples.dat',MH_samples)
+
+isExist = os.path.exists(outdir + '/' + 'diffusion_acceptance.dat')
+if isExist:
+    os.remove(outdir + '/' + 'diffusion_acceptance.dat')
+np.savetxt(outdir + '/' + 'diffusion_acceptance.dat',diffusion_rate)

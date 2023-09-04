@@ -14,7 +14,7 @@ def lprint(msg):
 class MH_Diffusion:
     def __init__(self,log_likelihood,dim,low_bound,high_bound,initial_samples,
     retrains,samples_per_retrain,outdir = 'chain',nsteps = 20,sigma = 0.3,
-    diffusion_per_MH = 2,bins = 20,noise_width = 0.05,plot_initial = True):
+    diffusion_prob = 0.5,bins = 20,noise_width = 0.05,beta_1 = 0.1,beta_2 = 0.3,plot_initial = True):
         self.log_likelihood = log_likelihood
         self.dim = dim
         self.low_bound = low_bound
@@ -25,9 +25,11 @@ class MH_Diffusion:
         self.outdir = outdir
         self.nsteps = nsteps
         self.sigma = sigma
-        self.diffusion_per_MH = diffusion_per_MH
+        self.diffusion_prob = diffusion_prob
         self.bins = bins
         self.noise_width = noise_width
+        self.beta_1 = beta_1
+        self.beta_2 = beta_2
         self.plot_initial = plot_initial
 
 
@@ -43,12 +45,12 @@ class MH_Diffusion:
         desired_sample_size = initial_sample_size
         var_guess = []
         for _ in range(0,self.nsteps):
-            var_guess.append(0.5)
+            var_guess.append(1)
         var_guess = np.array(var_guess)
 
         # Train diffusion model on initial seeded samples
         model = diffusion.DiffusionModel(self.dim,self.nsteps,self.noise_width,
-        initial_sample_size,desired_sample_size,training_samples,var_guess)
+        initial_sample_size,desired_sample_size,training_samples,var_guess,self.beta_1,self.beta_2)
         diffusion_samples,vars = model.fit()
 
         if self.plot_initial:
@@ -72,6 +74,7 @@ class MH_Diffusion:
         accepted_diffusion = []
         accepted_MH = []
         total_time = 0
+        diffusion_rate = []
 
         for retrain_iter in range(self.retrains):
 
@@ -90,8 +93,9 @@ class MH_Diffusion:
             naccepted = 0
             nattempted = 0
             for i in range(self.samples_per_retrain):
+                rand = np.random.uniform()
                 # Diffusion as proposal some of the time
-                if i%self.diffusion_per_MH != 0:
+                if rand < self.diffusion_prob:
                     nattempted_diffusion +=1
                     rand_pick = randrange(len(diffusion_samples))
                     theta_prime = diffusion_samples[rand_pick]
@@ -166,7 +170,7 @@ class MH_Diffusion:
             var_guess = vars
             model = diffusion.DiffusionModel(self.dim,self.nsteps,
             self.noise_width,initial_sample_size,desired_sample_size,
-            training_samples,var_guess)
+            training_samples,var_guess,self.beta_1,self.beta_2)
             diffusion_samples,vars = model.fit()
             end = time.time()
 
@@ -186,7 +190,8 @@ class MH_Diffusion:
                     CLEAR = '\x1b[2K'
                     print(UP, end=CLEAR)
 
-        return samples_final,accepted_diffusion,accepted_MH
+            diffusion_rate.append(naccepted_diffusion/nattempted_diffusion)
+        return samples_final,accepted_diffusion,accepted_MH,diffusion_rate
 
 
 class PureMH:

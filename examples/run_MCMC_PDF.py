@@ -58,14 +58,14 @@ outdir = 'PDF_4D'
 dim = 4
 low_bound = [-1,0,-1,0]
 high_bound = [1,5,1,5]
-sigma = 0.1
+sigma = 0.02
 noise_width = 0.1
 retrains = 100
-samples_per_retrain = 100
+samples_per_retrain = 1000
 plot_initial = False
 
 # PDF initial mode
-initial_sample_size = 100
+initial_sample_size = 1000
 maxima = np.array([[0.5,2.5,0.1,3]])
 initial_samples = []
 for maximum in maxima:
@@ -76,7 +76,7 @@ initial_samples = np.array(initial_samples)
 
 # Generate pure Metropolis-Hastings comparison samples
 sigma_pureMH = 0.1
-comparison_sample_size = 50000
+comparison_sample_size = 100000
 pureMH = Algo_1.PureMH(log_likelihood,comparison_sample_size,dim,
 low_bound,high_bound,sigma_pureMH = sigma_pureMH)
 comparison_samples = np.array(pureMH.run())
@@ -86,7 +86,7 @@ if not isExist:
 np.savetxt(outdir + '/' + 'comparison_samples.dat',comparison_samples)
 
 algo1 = Algo_1.MH_Diffusion(log_likelihood,dim,low_bound,high_bound,initial_samples,retrains,samples_per_retrain,outdir = outdir,sigma = sigma, noise_width = noise_width, plot_initial = plot_initial)
-samples,diffusion_samples,MH_samples = algo1.run()
+samples,diffusion_samples,MH_samples,diffusion_rate = algo1.run()
 
 isExist = os.path.exists(outdir + '/' + 'samples.dat')
 if isExist:
@@ -102,3 +102,8 @@ isExist = os.path.exists(outdir + '/' + 'MH_samples.dat')
 if isExist:
     os.remove(outdir + '/' + 'MH_samples.dat')
 np.savetxt(outdir + '/' + 'MH_samples.dat',MH_samples)
+
+isExist = os.path.exists(outdir + '/' + 'diffusion_acceptance.dat')
+if isExist:
+    os.remove(outdir + '/' + 'diffusion_acceptance.dat')
+np.savetxt(outdir + '/' + 'diffusion_acceptance.dat',diffusion_rate)
