@@ -1,5 +1,5 @@
 # MCMC-diffusion
-A Metropolis-Hastings MCMC sampler accelerated via diffusion models. 
+A Metropolis-Hastings MCMC sampler accelerated via diffusion models. Please cite https://arxiv.org/abs/2309.01454 if you use this code in your research.
 
 MCMC-diffusion contains 2 primary functions: `Algo_1.MH_Diffusion()`, which performs a Metropolis-Hastings MCMC chain combining a diffusion model proposal with a Gaussian proposal; and `Algo_1.PureMH()`, which performs a simple Metropolis-Hastings MCMC chain using only a Gaussian proposal. The user also has access to the `diffusion.DiffusionModel()` class, which can be used independently of any MCMC algorithm to generate diffusion samples resemble any target distribution.
 
@@ -12,7 +12,7 @@ Perform a Metropolis-Hastings MCMC chain combining a diffusion model proposal wi
 
 Function returns in order: an array of all samples in the chain, an array of only the accepted diffusion proposal samples, an array of only the accepted Gaussian proposal samples, an array of the acceptance rate of the diffusion proposal samples.
 
-### Parameters:
+### Parameters
 `log_likelihood` - Your log-likelihood function to be sampled. Must be defined in terms of a 1D parameter array `x` and a number of dimensions `dim`. Some example log-likelihood functions are provided in the examples folder.
 
 `dim` - Number of dimensions of the likelihood function.
@@ -25,7 +25,7 @@ Function returns in order: an array of all samples in the chain, an array of onl
 
 `retrains` - Number of times to retrain the diffusion model. More retrains will result in greater performance of the diffusion samples at the cost of increased runtime.
 
-`samples_per_retrain` - Number of diffusion samples to generate before retraining the diffusion model. Total number of samples = "retrains" * "samples_per_retrain". 
+`samples_per_retrain` - Number of diffusion samples to generate before retraining the diffusion model. Total number of samples = `retrains` multiplied by `samples_per_retrain`. 
 
 ### Keyword Arguments
 `outdir` (default = `chain`) - Name of directory to save results.
