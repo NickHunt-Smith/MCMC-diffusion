@@ -1,7 +1,9 @@
 # MCMC-diffusion
 A Metropolis-Hastings MCMC sampler accelerated via diffusion models. Please cite https://arxiv.org/abs/2309.01454 if you use this code in your research.
 
-MCMC-diffusion contains 2 primary functions: `Algo_1.MH_Diffusion()`, which performs a Metropolis-Hastings MCMC chain combining a diffusion model proposal with a Gaussian proposal; and `Algo_1.PureMH()`, which performs a simple Metropolis-Hastings MCMC chain using only a Gaussian proposal. The user also has access to the `diffusion.DiffusionModel()` class, which can be used independently of any MCMC algorithm to generate diffusion samples resemble any target distribution.
+MCMC-diffusion contains 2 primary functions: `Algo_1.MH_Diffusion()`, which performs a Metropolis-Hastings MCMC chain combining a diffusion model proposal with a Gaussian proposal; and `Algo_1.PureMH()`, which performs a simple Metropolis-Hastings MCMC chain using only a Gaussian proposal. The user also has access to the `diffusion.DiffusionModel()` class, which can be used independently of any MCMC algorithm to generate diffusion samples resemble any target distribution. 
+
+This code has the `pygtc` package as a dependency for the purposes of plotting posteriors, see https://pygtc.readthedocs.io/en/latest/installation.html for install information. 
 
 The examples folder contains some files that will help you get started. The suggested order to run the examples is Gaussian, Himmelblau, EggBox, Rosenbrock, then the PDF physics example. The plotting files in the examples folder will help visualise the algorithm outputs. Copy the example files to the main directory first before running.
 
