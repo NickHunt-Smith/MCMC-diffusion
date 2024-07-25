@@ -10,7 +10,8 @@ import time
 from random import randrange
 import inspect
 import time
-import Algo_1
+import Algo_1_opt as Algo_1
+# import Algo_1_og as Algo_1
 
 # PDF setup
 num_points = 20

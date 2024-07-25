@@ -8,7 +8,7 @@ import scipy
 from matplotlib import pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
-matplotlib.rcParams['text.latex.preamble'] = [r"\usepackage{amsmath}"]
+matplotlib.rcParams['text.latex.preamble'] = r"\usepackage{amsmath}" # removed list
 matplotlib.rc('text', usetex = True)
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.lines import Line2D
@@ -16,7 +16,7 @@ import matplotlib.colors as mcolors
 import pylab as py
 from matplotlib.backends.backend_pdf import PdfPages
 
-outdir = 'Gaussian_10D'
+outdir = 'Gaussian_10D_opt'
 dim = 10
 low_bound = -5*np.ones(dim)
 high_bound = 10*np.ones(dim)

@@ -4,7 +4,8 @@ import numpy as np
 import scipy
 import time
 from random import randrange
-import Algo_1
+import Algo_1_opt as Algo_1
+# import Algo_1_og as Algo_1
 
 # EggBox settings
 def log_likelihood(x,dim):
